@@ -1,17 +1,12 @@
 # Kali Linux + .NET Automated Docker Image
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/subratb/kali-rolling-dotnet/digest-check-rebuild.yml?branch=main)
-![Docker Pulls](https://img.shields.io/docker/pulls/subratb/kali-dotnet)
-![Docker Image Size](https://img.shields.io/docker/image-size/subratb/kali-dotnet/latest)
-![Docker Automated Build](https://img.shields.io/docker/cloud/automated/subratb/kali-dotnet)
-![Docker Build Status](https://img.shields.io/docker/cloud/build/subratb/kali-dotnet)
+![Docker Pulls](https://img.shields.io/docker/pulls/subratb/kali-rolling-dotnet)
+![Docker Image Size](https://img.shields.io/docker/image-size/subratb/kali-rolling-dotnet/latest)
 ![GitHub License](https://img.shields.io/github/license/subratb/kali-rolling-dotnet)
 ![GitHub Repo Stars](https://img.shields.io/github/stars/subratb/kali-rolling-dotnet?style=social)
 ![GitHub Issues](https://img.shields.io/github/issues/subratb/kali-rolling-dotnet)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/subratb/kali-rolling-dotnet)
-![GitHub Release](https://img.shields.io/github/v/release/subratb/kali-rolling-dotnet)
-![GitHub Release Date](https://img.shields.io/github/release-date/subratb/kali-rolling-dotnet)
-<!-- ![Multi-Arch](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-blue) -->
 
 
 This repository builds a custom Docker image based on **kalilinux/kali-rolling** with the **.NET SDK** installed using the official [`dotnet-install.sh`](https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual#scripted-install) script.
@@ -70,8 +65,8 @@ docker build -t kali-rolling-dotnet .
 ├── Containerfile
 ├── .kali_digest              # Auto-updated by GitHub Actions
 └── .github/
-└── workflows/
-└── digest-check-rebuild.yml
+    └── workflows/
+        └── digest-check-rebuild.yml
 ```
 ---
 
