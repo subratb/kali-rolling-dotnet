@@ -1,0 +1,66 @@
+name: Digest Check Rebuild
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"   # Every 12 hours
+  workflow_dispatch:
+
+jobs:
+  check-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get latest Kali digest
+        id: digest
+        run: |
+          DIGEST=$(docker pull kalilinux/kali-rolling:latest | grep "Digest:" | awk '{print $2}')
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Compare digests
+        id: compare
+        run: |
+          if [ -f .kali_digest ]; then
+            OLD=$(cat .kali_digest)
+          else
+            OLD="none"
+          fi
+
+          if [ "$OLD" = "${{ steps.digest.outputs.digest }}" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if no change
+        if: steps.compare.outputs.changed == 'false'
+        run: echo "No change in base image. Skipping rebuild."
+
+      - name: Log in to Docker Hub
+        if: steps.compare.outputs.changed == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image
+        if: steps.compare.outputs.changed == 'true'
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/kali-dotnet:latest .
+
+      - name: Push image
+        if: steps.compare.outputs.changed == 'true'
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kali-dotnet:latest
+
+      - name: Update stored digest
+        if: steps.compare.outputs.changed == 'true'
+        run: |
+          echo "${{ steps.digest.outputs.digest }}" > .kali_digest
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .kali_digest
+          git commit -m "Update Kali digest"
+          git push

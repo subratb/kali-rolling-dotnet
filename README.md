@@ -65,20 +65,21 @@ docker build -t kali-rolling-dotnet .
 
 ## 🧩 Repository Structure
 
+```bash
 .
 ├── Containerfile
 ├── .kali_digest              # Auto-updated by GitHub Actions
 └── .github/
 └── workflows/
 └── digest-check-rebuild.yml
-
+```
 ---
 
 ## 🤖 GitHub Actions Automation
 
 The workflow:
 
-- Runs every 6 hours
+- Runs every 12 hours
 - Pulls the latest Kali base image
 - Extracts its digest
 - Compares it to the stored digest
