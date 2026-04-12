@@ -50,6 +50,11 @@ jobs:
         run: |
           docker build -f Containerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/kali-rolling-dotnet:latest .
 
+      - name: Test dotnet inside built image
+        if: steps.compare.outputs.changed == 'true'
+        run: |
+          docker run --rm ${{ secrets.DOCKERHUB_USERNAME }}/kali-rolling-dotnet:latest dotnet --info
+
       - name: Push image
         if: steps.compare.outputs.changed == 'true'
         run: |
@@ -64,3 +69,11 @@ jobs:
           git add .kali_digest
           git commit -m "Update Kali digest"
           git push
+
+      - name: Notify Slack on failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"❌ Workflow *${{ github.workflow }}* failed on branch *${{ github.ref_name }}*. Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+

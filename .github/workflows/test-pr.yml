@@ -1,0 +1,27 @@
+name: Test Containerfile on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+
+      - name: Build image from PR
+        run: docker build -f Containerfile -t pr-test-image .
+
+      - name: Test dotnet inside PR image
+        run: docker run --rm pr-test-image dotnet --info
+
+      - name: Notify Slack on failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"❌ Workflow *${{ github.workflow }}* failed on branch *${{ github.ref_name }}*. Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}

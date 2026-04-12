@@ -1,0 +1,27 @@
+name: Test Docker Image
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"   # Daily at 06:00 UTC
+  push:
+    branches:
+      - main
+
+jobs:
+  test-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull image from Docker Hub
+        run: docker pull subratb/kali-rolling-dotnet:latest
+
+      - name: Test dotnet runs inside container
+        run: docker run --rm subratb/kali-rolling-dotnet:latest dotnet --info
+        
+      - name: Notify Slack on failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"❌ Workflow *${{ github.workflow }}* failed on branch *${{ github.ref_name }}*. Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
